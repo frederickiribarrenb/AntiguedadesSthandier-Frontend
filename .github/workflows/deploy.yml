@@ -37,15 +37,13 @@ jobs:
       # Paso 4: Compilar la aplicación para producción
       - name: Ejecutar build
         run: npm run build  # Ejecuta el script de build definido en package.json
-
-      # Paso 5: Configurar la identidad de Git para los commits automáticos
+# Paso 5: Configurar la identidad de Git para los commits automáticos
       - name: Configurar identidad de Git
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      # Paso 6 y 7 unificados: Ejecutar el deploy pasando el Token de autenticación de forma segura
+      # Paso 6: Ejecutar el deploy apuntando a la carpeta dist
       - name: Ejecutar deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # <--- Al pasarle esto, la librería gh-pages lo detecta y se autentica sola
-        run: npm run deploy
+        run: |
+          npx gh-pages -d dist -r https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
