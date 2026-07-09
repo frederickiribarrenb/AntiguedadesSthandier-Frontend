@@ -99,30 +99,23 @@ _Este proyecto no requiere autenticación obligatoria para la navegación genera
 
 ---
 
-## API y Endpoints
+## API y Arquitectura de Datos Resiliente
 
-Aunque el proyecto es mayoritariamente frontend, se sugieren los siguientes endpoints para la integración:
+El proyecto consume servicios remotos utilizando un servicio centralizado de datos ubicado en [apiService.js](file:///home/frederickiribarren/Proyectos/AntiguedadesSthandier-Frontend/src/services/apiService.js). Este servicio cuenta con una arquitectura resiliente diseñada para asegurar la disponibilidad del sitio bajo cualquier circunstancia (como problemas de red o bloqueos de políticas CORS).
 
-| Método | Ruta                 | Parámetros           | Descripción                          |
-| ------ | -------------------- | -------------------- | ------------------------------------ |
-| GET    | `/api/productos`     | `categoria`          | Obtiene el catálogo de antigüedades. |
-| GET    | `/api/productos/:id` | `id`                 | Detalles de una pieza específica.    |
-| POST   | `/api/contacto`      | `nombre, email, msg` | Envía un formulario de contacto.     |
-| GET    | `/api/preguntas`     | -                    | Obtiene la lista de FAQ.             |
+### Flujo de Datos
 
-**Ejemplo de respuesta JSON (`GET /api/productos`):**
+1. **Intento de Petición**: El frontend realiza llamadas `fetch` a la API de producción externa con la cabecera `Authorization: Bearer ipss.get`.
+2. **Control de Errores y CORS**: Si el servidor remoto no responde, responde con error HTTP, o el navegador bloquea la petición por políticas CORS, el error es capturado de manera segura.
+3. **Respaldo Local (Fallback)**: Si se detecta un error de red o CORS, la aplicación inyecta automáticamente un conjunto de datos locales estructurados de alta calidad con imágenes y descripciones reales.
 
-```json
-[
-  {
-    "id": 1,
-    "nombre": "Reloj de Bolsillo Oro 18k",
-    "descripcion": "Reloj suizo del siglo XIX...",
-    "precio": 1200,
-    "imagen": "/img/reloj-oro.jpg"
-  }
-]
-```
+### Endpoints Consumidos
+
+| Módulo | Endpoint Remoto | Descripción |
+| ------ | --------------- | ----------- |
+| **Quiénes Somos** | `GET https://www.clinicatecnologica.cl/ipss/antiguedadesSthandier/api/v1/about-us/` | Obtiene la descripción histórica de la tienda. |
+| **Productos** | `GET https://www.clinicatecnologica.cl/ipss/antiguedadesSthandier/api/v1/products-services/` | Obtiene el catálogo de antigüedades para el grid. |
+| **FAQ** | `GET https://www.clinicatecnologica.cl/ipss/antiguedadesSthandier/api/v1/faq/` | Lista de preguntas y respuestas del acordeón. |
 
 ---
 
@@ -233,12 +226,14 @@ jobs:
 
 ```text
 /src
-  /assets      # Imágenes y fuentes estáticas
-  /components  # Componentes reutilizables (Header, Banner, etc.)
-  /pages       # Vistas principales (Home, Productos, Contacto)
-  /img         # Imágenes de productos
-  App.jsx      # Router y estructura base
-  main.jsx     # Punto de entrada de React
+  /assets      # Recursos estáticos globales
+  /components  # Componentes UI de Material UI (Header, Banner, etc.)
+  /pages       # Vistas de la aplicación (Home, Productos, Contacto)
+  /services    # Capas de datos y lógica de llamadas (apiService.js)
+  /img         # Archivos de imagen estáticos de la colección
+  App.jsx      # Router y estructura principal
+  main.jsx     # Punto de entrada y configuración de MUI Theme
+  theme.js     # Definición del sistema de diseño MUI
 ```
 
 ### Documentación adicional

@@ -1,15 +1,19 @@
-// Importa el componente Formulario para mostrar el formulario de contacto
 import Formulario from "../components/Formulario";
+import Footer from "../components/Footer";
 
-// Componente funcional que representa la página de contacto
-function Contacto() {
+// Página de contacto independiente (para accesos directos por URL)
+function Contacto({ productosSeleccionados, allProductos }) {
     return (
-        // Contenedor principal con altura mínima de pantalla completa y disposición en columna
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-                <Formulario />
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#FAF7F2" }}>
+            <main style={{ flex: 1 }}>
+                <Formulario
+                    productosSeleccionados={productosSeleccionados}
+                    allProductos={allProductos}
+                />
+            </main>
+            <Footer />
         </div>
     );
 }
 
-// Exporta el componente para su uso en el enrutador u otros lugares
 export default Contacto;

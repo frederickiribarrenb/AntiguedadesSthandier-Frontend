@@ -1,141 +1,268 @@
-// Importa React y los componentes necesarios de Material UI para el acordeón
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
+import { Skeleton } from '@mui/material';
+import { ApiService } from '../services/apiService';
 
-// Componente funcional que muestra la lista de preguntas frecuentes en formato acordeón
 export default function PreguntasF() {
-  const [faqs, setFaqs] = useState([]);
+  const [faqs,    setFaqs]    = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const ref = useRef(null);
 
   useEffect(() => {
-    fetch('https://www.clinicatecnologica.cl/ipss/antiguedadesSthandier/api/v1/faq/', {
-      headers: { Authorization: 'Bearer ipss.get' }
-    })
-      .then(res => res.json())
-      .then(data => {
-        setFaqs(data.data || []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    ApiService.getFaqs().then((data) => {
+      setFaqs(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleChange = (panel) => (_, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
   return (
-    <>
-      {/* Contenedor principal responsivo para título y preguntas */}
+    <Box
+      ref={ref}
+      sx={{
+        background: 'linear-gradient(160deg, #FAF7F2 0%, #F0EAE0 100%)',
+        py: { xs: 8, md: 12 },
+        px: { xs: 3, md: 8 },
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── Encabezado ── */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          maxWidth: 1200,
-          mx: "auto",
-          minHeight: { xs: "auto", md: "70vh" },
-          gap: { xs: 2, md: 6 },
-          mt: 0, // Sin margen superior
-          mb: { xs: 1, md: 0 },
+          textAlign: 'center',
+          mb: { xs: 6, md: 8 },
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(28px)',
+          transition: 'all 0.7s ease',
         }}
       >
-        {/* Título principal de la sección de preguntas frecuentes */}
-        <Typography
-          variant="h4"
-          component="h2"
-          sx={{
-            textAlign: { xs: "center", md: "left" },
-            fontWeight: 800,
-            color: "#6d4c41",
-            letterSpacing: 1,
-            textShadow: "0 2px 8px rgba(121,85,72,0.10)",
-            minWidth: { md: 320 },
-            maxWidth: { md: 400 },
-            mb: { xs: 2, md: 0 },
-            mt: { xs: 0, md: 4 },
-            flexShrink: 0,
-          }}
-        >
-          <strong>Preguntas Frecuentes</strong>
-        </Typography>
-        {/* Contenedor de los acordeones, centrado y con ancho fijo */}
         <Box
           sx={{
-            maxWidth: 600,
-            background: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
-            borderRadius: "24px",
-            boxShadow: "0 4px 24px 0 rgba(121,85,72,0.10)",
-            padding: "2rem 1rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "stretch",
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 1,
+            px: 2.5, py: 0.75, mb: 2,
+            background: 'rgba(212,168,83,0.12)',
+            border: '1px solid rgba(212,168,83,0.3)',
+            borderRadius: 50,
           }}
         >
-          {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 100 }}>
-              <CircularProgress sx={{ color: "#795548" }} />
+          <DiamondOutlinedIcon sx={{ color: '#D4A853', fontSize: 13 }} />
+          <Typography
+            sx={{
+              color: '#A67C1F',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: '0.72rem', fontWeight: 600,
+              letterSpacing: '0.15em', textTransform: 'uppercase',
+            }}
+          >
+            FAQ
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="h2"
+          sx={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 700,
+            fontSize: { xs: '2rem', md: '2.75rem' },
+            color: '#1C1714',
+            mb: 1.5,
+          }}
+        >
+          Preguntas{' '}
+          <Box
+            component="span"
+            sx={{
+              fontStyle: 'italic',
+              background: 'linear-gradient(135deg, #D4A853, #A67C1F)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Frecuentes
+          </Box>
+        </Typography>
+
+        <Typography
+          sx={{
+            fontFamily: "'Inter', sans-serif",
+            color: '#7D5A35',
+            fontSize: { xs: '0.95rem', md: '1.05rem' },
+            maxWidth: 480, mx: 'auto', lineHeight: 1.75,
+          }}
+        >
+          Todo lo que necesitas saber sobre nuestra colección, procesos y servicios.
+        </Typography>
+      </Box>
+
+      {/* ── Acordeones ── */}
+      <Box sx={{ maxWidth: 820, mx: 'auto' }}>
+        {loading ? (
+          // Skeletons de carga
+          Array.from({ length: 4 }).map((_, i) => (
+            <Box
+              key={i}
+              sx={{
+                mb: 1.5,
+                borderRadius: '16px',
+                overflow: 'hidden',
+                border: '1px solid #E8D5C0',
+                background: '#fff',
+              }}
+            >
+              <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Skeleton
+                  variant="circular"
+                  width={28}
+                  height={28}
+                  sx={{ bgcolor: '#F0EAE0', flexShrink: 0 }}
+                />
+                <Skeleton variant="text" height={24} sx={{ bgcolor: '#F0EAE0', flex: 1 }} />
+              </Box>
             </Box>
-          ) : (
-            faqs.map((item, idx) => (
-              <Accordion
-                key={item.id}
-                sx={{
-                  mt: idx === 0 ? 0 : 2,
-                  borderRadius: 2,
-                  background: "#fff",
-                  boxShadow: "0 2px 8px 0 rgba(121,85,72,0.08)",
-                  border: "1px solid #bcaaa4",
-                  "&:before": { display: "none" },
-                  width: "100%",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon sx={{ color: "#795548" }} />}
-                  aria-controls={`panel${item.id}-content`}
-                  id={`panel${item.id}-header`}
-                  sx={{
-                    "& .MuiTypography-root": {
-                      fontWeight: 700,
-                      color: "#6d4c41"
-                    }
-                  }}
-                >
-                  <Typography
-                    component="span"
+          ))
+        ) : (
+          faqs.map((item, idx) => (
+            <Accordion
+              key={item.id}
+              expanded={expanded === item.id}
+              onChange={handleChange(item.id)}
+              elevation={0}
+              sx={{
+                mb: 1.5,
+                borderRadius: '16px !important',
+                border: '1px solid',
+                borderColor: expanded === item.id ? 'rgba(212,168,83,0.45)' : '#E8D5C0',
+                background: '#FFFFFF',
+                boxShadow: expanded === item.id
+                  ? '0 8px 32px rgba(212,168,83,0.15)'
+                  : '0 2px 8px rgba(28,23,20,0.06)',
+                overflow: 'hidden',
+                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: `${0.1 + idx * 0.07}s`,
+                '&:before': { display: 'none' },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={
+                  <Box
                     sx={{
-                      fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
-                      wordBreak: "break-word"
+                      width: 28, height: 28,
+                      borderRadius: '50%',
+                      background: expanded === item.id
+                        ? 'linear-gradient(135deg,#D4A853,#A67C1F)'
+                        : 'rgba(212,168,83,0.12)',
+                      border: '1px solid',
+                      borderColor: expanded === item.id ? 'transparent' : 'rgba(212,168,83,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.25s ease',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <ExpandMoreIcon
+                      sx={{
+                        color: expanded === item.id ? '#fff' : '#D4A853',
+                        fontSize: 18,
+                        transition: 'transform 0.3s ease',
+                      }}
+                    />
+                  </Box>
+                }
+                sx={{
+                  px: { xs: 2.5, md: 3 },
+                  py: 1.75,
+                  '& .MuiAccordionSummary-content': { mr: 2 },
+                }}
+                aria-controls={`faq-${item.id}-content`}
+                id={`faq-${item.id}-header`}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {/* Número de pregunta */}
+                  <Typography
+                    sx={{
+                      fontFamily: "'Playfair Display', serif",
+                      fontStyle: 'italic',
+                      fontSize: '0.78rem',
+                      color: expanded === item.id ? '#D4A853' : '#C9A882',
+                      fontWeight: 600,
+                      minWidth: 24,
+                      transition: 'color 0.25s',
+                    }}
+                  >
+                    {String(idx + 1).padStart(2, '0')}.
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: { xs: '0.93rem', md: '1rem' },
+                      fontWeight: 600,
+                      color: expanded === item.id ? '#1C1714' : '#3E2510',
+                      lineHeight: 1.45,
+                      transition: 'color 0.25s',
                     }}
                   >
                     {item.titulo}
                   </Typography>
-                </AccordionSummary>
-                <AccordionDetails
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails
+                sx={{
+                  px: { xs: 2.5, md: 3 },
+                  pb: 2.5,
+                  pt: 0,
+                }}
+              >
+                {/* Divisor */}
+                <Box
                   sx={{
-                    background: "#f5f5f5",
-                    borderRadius: 2,
-                    color: "#5d4037"
+                    height: 1,
+                    background: 'linear-gradient(90deg, rgba(212,168,83,0.4), transparent)',
+                    mb: 2,
+                    ml: 5,
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: { xs: '0.88rem', md: '0.95rem' },
+                    color: '#5C3D1E',
+                    lineHeight: 1.8,
+                    ml: 5,
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontSize: { xs: "0.95rem", sm: "1rem", md: "1.05rem" },
-                      wordBreak: "break-word"
-                    }}
-                  >
-                    {item.respuesta}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))
-          )}
-        </Box>
+                  {item.respuesta}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          ))
+        )}
       </Box>
-    </>
+    </Box>
   );
 }

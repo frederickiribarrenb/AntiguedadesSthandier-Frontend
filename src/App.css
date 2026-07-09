@@ -1,78 +1,43 @@
+/* App.css — Estilos complementarios al sistema de diseño */
+
+/* Reset del #root para layouts de página completa */
 #root {
-
-  margin: 0 auto;
-
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-cream, #FAF7F2);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Fuerza que el body no tenga scroll horizontal */
+html, body {
+  overflow-x: hidden;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Sección container principal */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-cream, #FAF7F2);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* Estilos base (monitores de escritorio grandes) */
-body {
-  font-size: 18px;
+/* Sección separadora visual entre bloques */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,213,192,0.8) 50%, transparent 100%);
   margin: 0;
-  padding: 0;
-  /* ...otros estilos base... */
 }
 
-/* Tablet (ancho entre 601px y 1024px) */
+/* Asegura que el main crezca para empujar el footer */
+main {
+  flex: 1;
+}
+
+/* Responsivo general */
 @media (max-width: 1024px) and (min-width: 601px) {
-  body {
-    font-size: 16px;
-    /* ...ajustes específicos para tablet... */
-  }
-  .container {
-    width: 90%;
-    margin: 0 auto;
-    /* ...otros estilos para tablet... */
-  }
+  body { font-size: 15px; }
 }
 
-/* Smartphone (ancho hasta 600px) */
 @media (max-width: 600px) {
-  body {
-    font-size: 14px;
-    /* ...ajustes específicos para smartphone... */
-  }
-  .container {
-    width: 100%;
-    margin: 0 auto;
-    /* ...otros estilos para smartphone... */
-  }
+  body { font-size: 14px; }
 }
-
-/* Puedes agregar más clases y media queries según lo necesites */
