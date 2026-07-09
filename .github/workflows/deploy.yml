@@ -9,7 +9,7 @@ on:
 
 # Permisos necesarios para el workflow
 permissions:
-  contents: read    # Leer el contenido del repositorio
+  contents: write    # Leer el contenido del repositorio
   pages: write      # Escribir en GitHub Pages
   id-token: write   # Generar tokens de identidad
 
@@ -41,15 +41,11 @@ jobs:
       # Paso 5: Configurar la identidad de Git para los commits automáticos
       - name: Configurar identidad de Git
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"  # Email del bot de GitHub Actions
-          git config --global user.name "github-actions[bot]"  # Nombre del bot de GitHub Actions
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
-      # Paso 6: Configurar autenticación para push automático
-      - name: Configurar autenticación de GitHub
-        run: |
-          # Configura la URL remota con el token de acceso para autenticación
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-
-      # Paso 7: Ejecutar el deploy de la aplicación
+      # Paso 6 y 7 unificados: Ejecutar el deploy pasando el Token de autenticación de forma segura
       - name: Ejecutar deploy
-        run: npm run deploy  # Ejecuta el script de deploy definido en package.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # <--- Al pasarle esto, la librería gh-pages lo detecta y se autentica sola
+        run: npm run deploy
